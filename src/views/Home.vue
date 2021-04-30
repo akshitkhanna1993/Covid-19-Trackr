@@ -1,18 +1,67 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <main>
+      <DataTitle  :text="title"  :dataDate="date" />
+      <DataBoxes  :stats="stats" />
+      <CountrySelect @get-country="getCountryData"  :countries="countries" />
+      <button  @click="clearCountryData"  v-if="stats.Country"  class="bg-green-600 text-center    text-white rounded p-3 mt-10 focus:outline-none hover:bg-green-500">
+       Clear countries
+      </button>
+
+    </main>
+    
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
+import DataTitle from '../components/DataTitle'
+import DataBoxes from '../components/DataBoxes'
+import CountrySelect from '../components/CountrySelect'
 export default {
   name: 'Home',
-  components: {
-    HelloWorld
-  }
+  components:{
+   DataTitle,
+   DataBoxes,
+   CountrySelect
+  },
+  data() {
+    return {
+      loading:true,
+      title:'Global',
+      date:'',
+      stats:{},
+      countries:[],
+
+    }
+  },
+  methods:{
+     async fetchCovidData() {
+      //let data
+     let res =  await fetch('https://api.covid19api.com/summary')
+       
+        let data = await res.json()
+
+       this.date = data.Date
+       this.stats = data.Global
+       this.countries = data.Countries
+
+    },
+    getCountryData(country){
+      console.log(country)
+      this.stats = country
+      this.title = country.Country
+    },
+    async clearCountryData() {
+      this.title='Global'
+     const data = await this.fetchCovidData()
+     this.stats = data.Global
+    }
+  },
+  mounted() {
+      this.fetchCovidData()
+  } ,
+  
 }
+
+
 </script>
